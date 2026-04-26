@@ -1,7 +1,7 @@
 .PHONY: build run stop logs run-once build-multi clean
 
 # Docker compose 文件路径
-COMPOSE_FILE := ../docker/docker-compose.yml
+COMPOSE_FILE := ../docker-compose.yml
 
 # 构建 Docker 镜像
 build:

@@ -101,37 +101,43 @@ class Reporter:
             if not papers:
                 continue
 
-            # Markdown 报告目录: reports/markdown/[source]/
-            if settings.REPORTS_BY_SOURCE:
-                md_dir = self.report_base_dir / "markdown" / source
+            # Markdown 报告（如果启用）
+            if settings.ENABLE_MARKDOWN_REPORT:
+                # Markdown 报告目录: reports/markdown/[source]/
+                if settings.REPORTS_BY_SOURCE:
+                    md_dir = self.report_base_dir / "markdown" / source
+                else:
+                    md_dir = self.report_base_dir / "markdown"
+                md_dir.mkdir(parents=True, exist_ok=True)
+
+                # 生成报告文件名
+                display_name = self.get_source_display_name(source)
+                filename = f"{source.upper()}_Report_{timestamp}.md"
+                filepath = md_dir / filename
+
+                # 获取该数据源的深度分析（如果有）
+                analyses = analyses_by_source.get(source, [])
+                # 如果该数据源有深度分析结果，则显示深度分析
+                has_deep_analysis = len(analyses) > 0
+
+                # 生成报告
+                self._generate_single_source_report(
+                    filepath=filepath,
+                    source=source,
+                    display_name=display_name,
+                    papers=papers,
+                    keywords_dict=keywords_dict,
+                    analyses=analyses,
+                    has_deep_analysis=has_deep_analysis,
+                    token_usage=token_usage,
+                )
+
+                report_paths[source] = filepath
+                logger.info(f"[{source}] Markdown 报告已生成: {filepath}")
             else:
-                md_dir = self.report_base_dir / "markdown"
-            md_dir.mkdir(parents=True, exist_ok=True)
-
-            # 生成报告文件名
-            display_name = self.get_source_display_name(source)
-            filename = f"{source.upper()}_Report_{timestamp}.md"
-            filepath = md_dir / filename
-
-            # 获取该数据源的深度分析（如果有）
-            analyses = analyses_by_source.get(source, [])
-            # 如果该数据源有深度分析结果，则显示深度分析
-            has_deep_analysis = len(analyses) > 0
-
-            # 生成报告
-            self._generate_single_source_report(
-                filepath=filepath,
-                source=source,
-                display_name=display_name,
-                papers=papers,
-                keywords_dict=keywords_dict,
-                analyses=analyses,
-                has_deep_analysis=has_deep_analysis,
-                token_usage=token_usage,
-            )
-
-            report_paths[source] = filepath
-            logger.info(f"[{source}] 报告已生成: {filepath}")
+                display_name = self.get_source_display_name(source)
+                analyses = analyses_by_source.get(source, [])
+                has_deep_analysis = len(analyses) > 0
 
             # 生成 HTML 报告（如果启用）
             if settings.ENABLE_HTML_REPORT:

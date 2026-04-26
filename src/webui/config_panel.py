@@ -6,7 +6,7 @@ Usage:
     streamlit run src/webui/config_panel.py
 
     Docker:
-    docker compose -f docker/docker-compose.yml --profile webui up -d config-panel
+    docker compose up -d config-panel
 """
 
 import sys
@@ -31,7 +31,7 @@ from utils.config_io import (
 
 from webui.styles import CUSTOM_CSS
 from webui.tabs import llm, search, keywords, scoring, notifications, advanced, reports
-from webui.tabs import run_manager, trend_runner
+from webui.tabs import run_manager, trend_runner, proxy, data_management
 from webui.i18n import t
 
 
@@ -74,7 +74,7 @@ def do_save():
     env_updates = {}
     config_updates = {}
 
-    # API tab (原 LLM tab) -> env only
+    # API tab -> env only
     env_updates.update(llm.collect(env_values, config_values))
 
     # Search tab -> config only
@@ -93,6 +93,17 @@ def do_save():
 
     # Advanced tab -> config only
     config_updates.update(advanced.collect(env_values, config_values))
+
+    # Run Manager tab -> config only（每日研究设置）
+    config_updates.update(run_manager.collect(env_values, config_values))
+
+    # Proxy tab -> config only
+    config_updates.update(proxy.collect(env_values, config_values))
+
+    # Data Management tab -> both env and config
+    dm_env, dm_cfg = data_management.collect(env_values, config_values)
+    env_updates.update(dm_env)
+    config_updates.update(dm_cfg)
 
     # Trend Runner tab -> config only（趋势分析配置）
     config_updates.update(trend_runner.collect(env_values, config_values))
@@ -147,7 +158,7 @@ with st.sidebar:
         st.session_state["lang"] = "en" if st.session_state["lang"] == "zh" else "zh"
         st.rerun()
 
-    st.caption("v3.1 | Powered by Streamlit")
+    st.caption("v3.2 | Powered by Streamlit")
 
 
 # ==================== Main Content ====================
@@ -163,17 +174,19 @@ st.markdown(
 env_values = load_env()
 config_values = load_config()
 
-# Render tabs（9 个 Tab）
+# Render tabs
 tab_labels = [
-    t("tab_run_manager"),    # 运行管理
-    t("tab_reports"),        # 报告查看
-    t("tab_trend_runner"),   # 趋势分析
-    t("tab_keywords"),       # 关键词
-    t("tab_search"),         # 搜索与数据源
-    t("tab_scoring"),        # 评分
+    t("tab_run_manager"),  # 运行管理
+    t("tab_reports"),  # 报告查看
+    t("tab_trend_runner"),  # 趋势分析
+    t("tab_keywords"),  # 关键词
+    t("tab_search"),  # 搜索与数据源
+    t("tab_scoring"),  # 评分
     t("tab_notifications"),  # 通知
-    t("tab_llm"),            # API
-    t("tab_advanced"),       # 高级设置
+    t("tab_data_management"),  # 数据管理
+    t("tab_llm"),  # API
+    t("tab_proxy"),  # 网络代理
+    t("tab_advanced"),  # 高级设置
 ]
 tabs = st.tabs(tab_labels)
 
@@ -199,8 +212,13 @@ with tabs[6]:
     notifications.render(env_values, config_values)
 
 with tabs[7]:
-    llm.render(env_values, config_values)
+    data_management.render(env_values, config_values)
 
 with tabs[8]:
-    advanced.render(env_values, config_values)
+    llm.render(env_values, config_values)
 
+with tabs[9]:
+    proxy.render(env_values, config_values)
+
+with tabs[10]:
+    advanced.render(env_values, config_values)

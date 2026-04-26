@@ -299,6 +299,21 @@ def _make_log_options(logs: list[Path]) -> list[tuple[str, Optional[Path]]]:
     return opts
 
 
+def _refresh_latest_log() -> None:
+    """刷新按钮回调：自动打开最新的非系统日志文件。"""
+    log_groups = _scan_all_logs()
+    non_system = (
+        log_groups.get("manual", [])
+        + log_groups.get("daily", [])
+        + log_groups.get("trend", [])
+        + log_groups.get("other", [])
+    )
+    if non_system:
+        newest = max(non_system, key=lambda p: p.stat().st_mtime)
+        st.session_state[_LOG_ACTIVE] = str(newest)
+        st.session_state[_LOG_CLOSED] = False
+
+
 def _render_log_section() -> None:
     """
     三列并排的日志选择器 + 共享内容区。
@@ -394,7 +409,12 @@ def _render_log_section() -> None:
             f"{datetime.datetime.fromtimestamp(stat.st_mtime):%Y-%m-%d %H:%M:%S}"
         )
     with r_col:
-        st.button(f"🔄 {t('rm_refresh_log_btn')}", key="rm_log_refresh", use_container_width=True)
+        st.button(
+            f"🔄 {t('rm_refresh_log_btn')}",
+            key="rm_log_refresh",
+            use_container_width=True,
+            on_click=_refresh_latest_log,
+        )
     with c_col:
         if st.button(f"✖ {t('rm_close_log_btn')}", key="rm_log_close", use_container_width=True):
             st.session_state[_LOG_CLOSED] = True
@@ -406,25 +426,64 @@ def _render_log_section() -> None:
 # ─── 主渲染 ─────────────────────────────────────────────────────────────────
 
 
-def render(_env_values: dict, _config_values: dict) -> None:
+def render(_env_values: dict, config_values: dict) -> None:
+    flat = config_values
+
     st.markdown(
-        f'<p class="section-title">{t("run_manager_title")}</p>',
+        f'<p class="section-title">🚀 {t("run_now_section_title")}</p>',
         unsafe_allow_html=True,
     )
-
-    st.markdown(f"#### 🚀 {t('run_now_section_title')}")
     _render_run_control()
 
     st.divider()
 
-    st.markdown(f"#### 📊 {t('rm_status_title')}")
+    st.markdown(
+        f'<p class="section-title">📊 {t("rm_status_title")}</p>',
+        unsafe_allow_html=True,
+    )
     _render_status()
 
     st.divider()
 
-    st.markdown(f"#### 📋 {t('run_log_title')}")
+    # ── 每日研究设置 ──────────────────────────────────────────────────────
+    st.markdown(
+        f'<p class="section-title">⚙️ {t("daily_research_settings_title")}</p>',
+        unsafe_allow_html=True,
+    )
+    col_ds1, col_ds2, col_ds3 = st.columns(3)
+    with col_ds1:
+        st.toggle(
+            t("html_reports_label"),
+            value=flat.get("enable_html_report", True),
+            key="enable_html_report",
+        )
+    with col_ds2:
+        st.toggle(
+            t("markdown_report_label"),
+            value=flat.get("enable_markdown_report", True),
+            key="enable_markdown_report",
+        )
+    with col_ds3:
+        st.toggle(
+            t("include_all_in_report"),
+            value=flat.get("include_all_in_report", True),
+            key="include_all_in_report",
+            help=t("include_all_help"),
+        )
+
+    st.divider()
+
+    st.markdown(
+        f'<p class="section-title">📋 {t("run_log_title")}</p>',
+        unsafe_allow_html=True,
+    )
     _render_log_section()
 
 
 def collect(_env_values: dict, _config_values: dict) -> dict:
-    return {}
+    """从 session_state 收集每日研究设置。"""
+    return {
+        "enable_html_report": st.session_state.get("enable_html_report", True),
+        "enable_markdown_report": st.session_state.get("enable_markdown_report", True),
+        "include_all_in_report": st.session_state.get("include_all_in_report", True),
+    }

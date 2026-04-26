@@ -92,6 +92,13 @@ fi
 TRIGGER_FILE="/app/data/run/webui_run_trigger.flag"
 mkdir -p /app/data/run
 
+# Clear stale trigger file from previous container lifecycle to avoid
+# unintended auto-run right after restart/redeploy.
+if [ -f "$TRIGGER_FILE" ]; then
+    echo "[trigger-watcher] Removing stale trigger file on startup: $TRIGGER_FILE"
+    rm -f "$TRIGGER_FILE"
+fi
+
 trigger_watcher() {
     echo "[trigger-watcher] Started. Polling $TRIGGER_FILE every 5s..."
     while true; do

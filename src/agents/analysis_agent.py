@@ -390,7 +390,7 @@ class AnalysisAgent:
             is_qualified = total_score >= passing_score
 
             logger.info(
-                f"论文评分完成: 总分={total_score:.1f}, 及格分={passing_score:.1f}, {'✅及格' if is_qualified else '❌未及格'}"
+                f"论文评分完成 [{title[:50]}]: 总分={total_score:.1f}, 及格分={passing_score:.1f}, {'✅及格' if is_qualified else '❌未及格'}"
             )
 
             return WeightedScoreResponse(
@@ -406,7 +406,7 @@ class AnalysisAgent:
             )
 
         except Exception as e:
-            logger.error(f"论文评分失败: {e}")
+            logger.error(f"论文评分失败 [{title[:50]}]: {e}")
             import traceback
 
             traceback.print_exc()
@@ -450,7 +450,7 @@ class AnalysisAgent:
 
         try:
             translation = self._call_cheap_llm_plain(prompt)
-            logger.info("摘要翻译完成")
+            logger.info(f"摘要翻译完成 [{abstract[:30]}...]")
             return translation
 
         except Exception as e:
@@ -481,10 +481,10 @@ class AnalysisAgent:
 
         if not pdf_text:
             if fallback_to_abstract:
-                logger.warning("PDF解析失败，使用摘要作为降级方案")
+                logger.warning(f"PDF解析失败 [{title[:50]}]，使用摘要作为降级方案")
                 pdf_text = abstract
             else:
-                logger.error("PDF解析失败，且未启用降级方案")
+                logger.error(f"PDF解析失败 [{title[:50]}]，且未启用降级方案")
                 return None
 
         # 从新模板获取配置
@@ -568,11 +568,11 @@ class AnalysisAgent:
                 logger.error(f"原始内容（前500字符）: {content[:500]}")
                 raise
 
-            logger.info("深度分析完成")
+            logger.info(f"深度分析完成 [{title[:50]}]")
             return result
 
         except Exception as e:
-            logger.error(f"深度分析失败: {e}")
+            logger.error(f"深度分析失败 [{title[:50]}]: {e}")
             import traceback
 
             traceback.print_exc()

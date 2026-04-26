@@ -60,26 +60,71 @@ def _skill_label(skill_id: str) -> str:
     return entry.get(lang, entry.get("en", skill_id.replace("_", " ").title()))
 
 
+def _build_output_formats() -> list[str]:
+    """从两个 toggle 值构建输出格式列表。"""
+    formats = []
+    if st.session_state.get("trend_output_md", True):
+        formats.append("markdown")
+    if st.session_state.get("trend_output_html", True):
+        formats.append("html")
+    return formats
+
+
 def render(_env_values: dict, config_values: dict) -> None:
     """渲染趋势分析 Tab。"""
     from utils.config_io import flatten_config_dict
 
     flat = flatten_config_dict(config_values) if config_values else {}
 
+    # ── 1. 运行控制（最顶部）──────────────────────────────────────────────
     st.markdown(
-        f'<p class="section-title">{t("trend_runner_title")}</p>',
+        f'<p class="section-title">🚀 {t("tr_section_run_control")}</p>',
         unsafe_allow_html=True,
     )
 
-    # ── 1. 分析参数 ──────────────────────────────────────────────────────────
-    st.markdown(f"#### 🔍 {t('tr_section_params')}")
+    # 当前趋势分析进程状态
+    trend_locks = _get_trend_lock_files()
+    if trend_locks:
+        st.info(t("tr_locks_found").format(n=len(trend_locks)))
+        for lock in trend_locks:
+            pid = _read_pid_from_lock(lock)
+            is_running = pid and _is_pid_running(pid)
+            status = f"🟢 {t('rm_status_running')}" if is_running else f"🔴 {t('rm_status_stopped')}"
+            st.caption(f"{status} — `{lock.name}` PID={pid or t('rm_no_pid')}")
 
+    # 关键词输入放在运行按钮前（运行需要关键词）
     keywords_input = st.text_input(
         t("trend_keywords_label"),
         value="",
         key="tr_keywords",
         placeholder=t("tr_keywords_placeholder"),
         help=t("trend_keywords_help"),
+    )
+
+    col_run, col_stop, _ = st.columns([1, 1, 3])
+
+    with col_run:
+        run_clicked = st.button(
+            t("trend_run_btn"),
+            key="tr_run_btn",
+            type="primary",
+            use_container_width=True,
+        )
+
+    with col_stop:
+        stop_clicked = st.button(
+            t("tr_stop_btn_label"),
+            key="tr_stop_btn",
+            type="secondary",
+            use_container_width=True,
+        )
+
+    st.divider()
+
+    # ── 2. 分析参数 ──────────────────────────────────────────────────────────
+    st.markdown(
+        f'<p class="section-title">🔍 {t("tr_section_params")}</p>',
+        unsafe_allow_html=True,
     )
 
     col_d1, col_d2 = st.columns(2)
@@ -107,8 +152,11 @@ def render(_env_values: dict, config_values: dict) -> None:
 
     st.divider()
 
-    # ── 2. 分析配置 ──────────────────────────────────────────────────────────
-    st.markdown(f"#### ⚙️ {t('trend_config_title')}")
+    # ── 3. 分析配置 ──────────────────────────────────────────────────────────
+    st.markdown(
+        f'<p class="section-title">⚙️ {t("trend_config_title")}</p>',
+        unsafe_allow_html=True,
+    )
 
     col_c1, col_c2 = st.columns(2)
     with col_c1:
@@ -164,13 +212,20 @@ def render(_env_values: dict, config_values: dict) -> None:
 
     # 输出格式
     output_formats = flat.get("trend_output_formats", ["markdown", "html"])
-    fmt_options = ["markdown", "html"]
-    st.multiselect(
-        t("trend_output_formats_label"),
-        options=fmt_options,
-        default=[f for f in output_formats if f in fmt_options],
-        key="trend_output_formats",
-    )
+    st.markdown(f"**{t('trend_output_formats_label')}**")
+    col_fmt1, col_fmt2, col_fmt3 = st.columns(3)
+    with col_fmt1:
+        st.toggle(
+            t("trend_output_md_label"),
+            value="markdown" in output_formats,
+            key="trend_output_md",
+        )
+    with col_fmt2:
+        st.toggle(
+            t("trend_output_html_label"),
+            value="html" in output_formats,
+            key="trend_output_html",
+        )
 
     # 启用的技能
     st.markdown(f"**{t('trend_skills_label')}**")
@@ -184,38 +239,7 @@ def render(_env_values: dict, config_values: dict) -> None:
                 key=f"skill_{skill_id}",
             )
 
-    st.divider()
-
-    # ── 3. 运行控制 ──────────────────────────────────────────────────────────
-    st.markdown(f"#### 🚀 {t('tr_section_run_control')}")
-
-    # 当前趋势分析进程状态
-    trend_locks = _get_trend_lock_files()
-    if trend_locks:
-        st.info(t("tr_locks_found").format(n=len(trend_locks)))
-        for lock in trend_locks:
-            pid = _read_pid_from_lock(lock)
-            is_running = pid and _is_pid_running(pid)
-            status = f"🟢 {t('rm_status_running')}" if is_running else f"🔴 {t('rm_status_stopped')}"
-            st.caption(f"{status} — `{lock.name}` PID={pid or t('rm_no_pid')}")
-
-    col_run, col_stop, _ = st.columns([1, 1, 3])
-
-    with col_run:
-        run_clicked = st.button(
-            t("trend_run_btn"),
-            key="tr_run_btn",
-            type="primary",
-            use_container_width=True,
-        )
-
-    with col_stop:
-        stop_clicked = st.button(
-            t("tr_stop_btn_label"),
-            key="tr_stop_btn",
-            type="secondary",
-            use_container_width=True,
-        )
+    # ── 处理按钮逻辑 ────────────────────────────────────────────────────────
 
     # 处理停止
     if stop_clicked:
@@ -288,6 +312,6 @@ def collect(_env_values: dict, _config_values: dict) -> dict:
         "trend_report_position": st.session_state.get("trend_report_position", "end"),
         "trend_generate_tldr": st.session_state.get("trend_generate_tldr", True),
         "trend_tldr_batch_size": st.session_state.get("trend_tldr_batch_size", 10),
-        "trend_output_formats": st.session_state.get("trend_output_formats", ["markdown", "html"]),
+        "trend_output_formats": _build_output_formats(),
         "trend_enabled_skills": enabled_skills,
     }

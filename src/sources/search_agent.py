@@ -90,10 +90,15 @@ class SearchAgent:
 
     def _init_sources(self):
         """根据配置初始化数据源"""
+        from config import settings as _settings
+
         # 检查是否启用 ArXiv
         if "arxiv" in self.enabled_sources:
+            arxiv_proxy = _settings.get_proxy_dict("arxiv")
             self.sources["arxiv"] = ArxivSource(
-                history_dir=self.history_dir, max_results=self._get_max_results("arxiv")
+                history_dir=self.history_dir,
+                max_results=self._get_max_results("arxiv"),
+                proxy_dict=arxiv_proxy,
             )
             logger.info("[SearchAgent] 已启用 ArXiv 数据源")
 
@@ -122,10 +127,22 @@ class SearchAgent:
                 email=self.openalex_email,
                 api_key=self.openalex_api_key,
             )
+            # 注入代理
+            openalex_proxy = _settings.get_proxy_dict("openalex")
+            if openalex_proxy:
+                self.sources["openalex"].session.proxies.update(openalex_proxy)
+                logger.info("[SearchAgent] OpenAlex 已配置网络代理")
             self._journal_codes = journal_codes
             logger.info(f"[SearchAgent] 已启用 OpenAlex 数据源，期刊: {journal_codes}")
         else:
             self._journal_codes = []
+
+        # 注入代理到 Semantic Scholar
+        if self.semantic_scholar_enricher:
+            s2_proxy = _settings.get_proxy_dict("semantic_scholar")
+            if s2_proxy:
+                self.semantic_scholar_enricher.session.proxies.update(s2_proxy)
+                logger.info("[SearchAgent] Semantic Scholar 已配置网络代理")
 
     def fetch_all_papers(self, days: int = 7) -> Dict[str, List[PaperMetadata]]:
         """

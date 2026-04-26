@@ -40,7 +40,7 @@ def render(env_values: dict, _config_values: dict):
     """渲染 API 配置 Tab。"""
 
     # ---- CHEAP LLM ----
-    st.markdown(f'<p class="section-title">{t("cheap_llm_title")}</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="section-title">💸 {t("cheap_llm_title")}</p>', unsafe_allow_html=True)
     st.markdown(f'<p class="hint-text">{t("cheap_llm_hint")}</p>', unsafe_allow_html=True)
 
     current_cheap_base = env_values.get("CHEAP_LLM__BASE_URL", "https://api.openai.com/v1")
@@ -100,7 +100,7 @@ def render(env_values: dict, _config_values: dict):
     st.divider()
 
     # ---- SMART LLM ----
-    st.markdown(f'<p class="section-title">{t("smart_llm_title")}</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="section-title">🧠 {t("smart_llm_title")}</p>', unsafe_allow_html=True)
     st.markdown(f'<p class="hint-text">{t("smart_llm_hint")}</p>', unsafe_allow_html=True)
 
     current_smart_base = env_values.get("SMART_LLM__BASE_URL", "https://api.openai.com/v1")
@@ -161,7 +161,9 @@ def render(env_values: dict, _config_values: dict):
 
     # ---- MinerU API ----
     st.divider()
-    st.markdown(f'<p class="section-title">{t("mineru_section_title")}</p>', unsafe_allow_html=True)
+    st.markdown(
+        f'<p class="section-title">📄 {t("mineru_section_title")}</p>', unsafe_allow_html=True
+    )
     st.markdown(f'<p class="hint-text">{t("mineru_section_hint")}</p>', unsafe_allow_html=True)
 
     mineru_key = st.text_input(
@@ -200,7 +202,7 @@ def render(env_values: dict, _config_values: dict):
 
     # ---- 其他第三方 API Keys ----
     st.markdown(
-        f'<p class="section-title">{t("third_party_keys_title")}</p>', unsafe_allow_html=True
+        f'<p class="section-title">🔑 {t("third_party_keys_title")}</p>', unsafe_allow_html=True
     )
     st.markdown(f'<p class="hint-text">{t("third_party_keys_hint")}</p>', unsafe_allow_html=True)
 

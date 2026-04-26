@@ -20,7 +20,7 @@ def render(_env_values: dict, config_values: dict):
     flat = config_values
 
     # ---- PDF Parser ----
-    st.markdown(f'<p class="section-title">{t("pdf_parser_title")}</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="section-title">📄 {t("pdf_parser_title")}</p>', unsafe_allow_html=True)
     st.markdown(f'<p class="hint-text">{t("pdf_parser_hint")}</p>', unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
@@ -48,7 +48,7 @@ def render(_env_values: dict, config_values: dict):
     st.divider()
 
     # ---- Concurrency ----
-    st.markdown(f'<p class="section-title">{t("concurrency_title")}</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="section-title">⚡ {t("concurrency_title")}</p>', unsafe_allow_html=True)
     st.markdown(f'<p class="hint-text">{t("concurrency_hint")}</p>', unsafe_allow_html=True)
 
     col3, col4 = st.columns(2)
@@ -72,24 +72,18 @@ def render(_env_values: dict, config_values: dict):
 
     # ---- Report & Token Tracking ----
     st.markdown(
-        f'<p class="section-title">{t("advanced_reports_title")}</p>',
+        f'<p class="section-title">📊 {t("advanced_reports_title")}</p>',
         unsafe_allow_html=True,
     )
 
-    col5, col6, col7 = st.columns(3)
+    col5, col6 = st.columns(2)
     with col5:
-        st.toggle(
-            t("html_reports_label"),
-            value=flat.get("enable_html_report", True),
-            key="enable_html_report",
-        )
-    with col6:
         st.toggle(
             t("token_tracking_label"),
             value=flat.get("token_tracking_enabled", True),
             key="token_tracking_enabled",
         )
-    with col7:
+    with col6:
         st.toggle(
             t("auto_update_label"),
             value=flat.get("auto_update_enabled", True),
@@ -99,7 +93,7 @@ def render(_env_values: dict, config_values: dict):
     st.divider()
 
     # ---- Keyword Tracker ----
-    st.markdown(f'<p class="section-title">{t("kw_tracker_title")}</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="section-title">🧩 {t("kw_tracker_title")}</p>', unsafe_allow_html=True)
 
     st.toggle(
         t("enable_kw_tracker"),
@@ -167,7 +161,7 @@ def render(_env_values: dict, config_values: dict):
     st.divider()
 
     # ---- Retry ----
-    st.markdown(f'<p class="section-title">{t("retry_title")}</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="section-title">♻️ {t("retry_title")}</p>', unsafe_allow_html=True)
 
     col12, col13, col14 = st.columns(3)
     with col12:
@@ -234,7 +228,6 @@ def collect(_env_values: dict, _config_values: dict) -> dict:
         "mineru_model_version": st.session_state.get("mineru_model_version", "pipeline"),
         "concurrency_enabled": st.session_state.get("concurrency_enabled", False),
         "concurrency_workers": st.session_state.get("concurrency_workers", 3),
-        "enable_html_report": st.session_state.get("enable_html_report", True),
         "token_tracking_enabled": st.session_state.get("token_tracking_enabled", True),
         "auto_update_enabled": st.session_state.get("auto_update_enabled", True),
         "keyword_tracker_enabled": st.session_state.get("keyword_tracker_enabled", True),

@@ -107,7 +107,9 @@ def _discover_reports() -> dict[str, list[ReportFile]]:
     if kw_html.exists():
         for f in sorted(kw_html.glob("*.html"), reverse=True):
             result["keyword_trend"].append(
-                ReportFile(f, _fmt_kw(f.stem), "keyword_trend", "keyword_trend", _extract_date_key(f.stem))
+                ReportFile(
+                    f, _fmt_kw(f.stem), "keyword_trend", "keyword_trend", _extract_date_key(f.stem)
+                )
             )
 
     return result
@@ -237,7 +239,8 @@ def _find_adjacent_report(
 
     # 同类型、同 source 的所有报告
     same_source = [
-        r for r in all_reports.get(current.report_type, [])
+        r
+        for r in all_reports.get(current.report_type, [])
         if r.source == current.source and r.date_key
     ]
     if not same_source:
@@ -257,7 +260,6 @@ def _find_adjacent_report(
     # 返回目标日期内最新的一份报告（按文件修改时间）
     candidates = [r for r in same_source if r.date_key == target_date]
     return max(candidates, key=lambda r: r.path.stat().st_mtime)
-
 
 
 # ─── preview ──────────────────────────────────────────────────────────────────
@@ -351,10 +353,6 @@ def _render_preview(report: ReportFile, all_reports: dict[str, list[ReportFile]]
 def render(_env_values: dict, _config_values: dict) -> None:
     """渲染报告查看 Tab。"""
 
-    st.markdown(
-        f'<p class="section-title">{t("reports_title")}</p>',
-        unsafe_allow_html=True,
-    )
     st.markdown(
         f'<p class="hint-text">{t("reports_hint")}</p>',
         unsafe_allow_html=True,

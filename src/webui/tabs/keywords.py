@@ -11,7 +11,7 @@ def render(_env_values: dict, config_values: dict):
 
     # ---- Primary Keywords ----
     st.markdown(
-        f'<p class="section-title">{t("primary_keywords_title")}</p>', unsafe_allow_html=True
+        f'<p class="section-title">🏷️ {t("primary_keywords_title")}</p>', unsafe_allow_html=True
     )
     st.markdown(f'<p class="hint-text">{t("primary_keywords_hint")}</p>', unsafe_allow_html=True)
 
@@ -36,7 +36,7 @@ def render(_env_values: dict, config_values: dict):
     st.divider()
 
     # ---- Reference Extraction ----
-    st.markdown(f'<p class="section-title">{t("ref_extract_title")}</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="section-title">📚 {t("ref_extract_title")}</p>', unsafe_allow_html=True)
     st.markdown(f'<p class="hint-text">{t("ref_extract_hint")}</p>', unsafe_allow_html=True)
 
     st.toggle(
@@ -124,7 +124,7 @@ def render(_env_values: dict, config_values: dict):
 
     # ---- Research Context ----
     st.markdown(
-        f'<p class="section-title">{t("research_context_title")}</p>', unsafe_allow_html=True
+        f'<p class="section-title">🧭 {t("research_context_title")}</p>', unsafe_allow_html=True
     )
     st.markdown(f'<p class="hint-text">{t("research_context_hint")}</p>', unsafe_allow_html=True)
 

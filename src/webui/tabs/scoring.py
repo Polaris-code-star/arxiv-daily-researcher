@@ -10,7 +10,7 @@ def render(_env_values: dict, config_values: dict):
     flat = config_values
 
     # ---- Passing Score Formula ----
-    st.markdown(f'<p class="section-title">{t("scoring_title")}</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="section-title">🧮 {t("scoring_title")}</p>', unsafe_allow_html=True)
     st.markdown(f'<p class="hint-text">{t("scoring_hint")}</p>', unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
@@ -67,7 +67,9 @@ def render(_env_values: dict, config_values: dict):
     st.divider()
 
     # ---- Author Bonus ----
-    st.markdown(f'<p class="section-title">{t("author_bonus_title")}</p>', unsafe_allow_html=True)
+    st.markdown(
+        f'<p class="section-title">👤 {t("author_bonus_title")}</p>', unsafe_allow_html=True
+    )
     st.markdown(f'<p class="hint-text">{t("author_bonus_hint")}</p>', unsafe_allow_html=True)
 
     st.toggle(
@@ -97,19 +99,6 @@ def render(_env_values: dict, config_values: dict):
                 key="author_bonus_points",
             )
 
-    st.divider()
-
-    # ---- Report Inclusion ----
-    st.markdown(
-        f'<p class="section-title">{t("report_settings_title")}</p>', unsafe_allow_html=True
-    )
-
-    st.toggle(
-        t("include_all_in_report"),
-        value=flat.get("include_all_in_report", True),
-        key="include_all_in_report",
-        help=t("include_all_help"),
-    )
 
 
 def collect(_env_values: dict, _config_values: dict) -> dict:
@@ -121,7 +110,6 @@ def collect(_env_values: dict, _config_values: dict) -> dict:
         ),
         "max_score_per_keyword": st.session_state.get("max_score_per_keyword", 10),
         "enable_author_bonus": st.session_state.get("enable_author_bonus", False),
-        "include_all_in_report": st.session_state.get("include_all_in_report", True),
     }
 
     if result["enable_author_bonus"]:

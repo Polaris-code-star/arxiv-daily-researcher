@@ -75,19 +75,26 @@ class ArxivSource(BasePaperSource):
     - 支持按领域分类（如 quant-ph, cs.AI）抓取
     - 支持 PDF 下载，可进行深度分析
     - 使用官方 arxiv Python 库
+    - 支持网络代理
     """
 
-    def __init__(self, history_dir: Path, max_results: int = 100):
+    def __init__(self, history_dir: Path, max_results: int = 100, proxy_dict: dict = None):
         """
         初始化 ArXiv 数据源。
 
         参数:
             history_dir: 历史记录存储目录
             max_results: 每个领域最多抓取的论文数
+            proxy_dict: 代理配置字典，如 {"http": "...", "https": "..."}
         """
         super().__init__("arxiv", history_dir)
         self.max_results = max_results
         self.client = arxiv.Client(page_size=100, delay_seconds=6.0, num_retries=3)  # 避免 429 错误
+
+        # 注入代理配置到 arxiv.Client 的内部 requests.Session
+        if proxy_dict:
+            self.client._session.proxies.update(proxy_dict)
+            logger.info(f"[ArXiv] 已配置网络代理: {proxy_dict.get('https', proxy_dict.get('http', 'N/A'))}")
 
     @property
     def display_name(self) -> str:
@@ -136,8 +143,11 @@ class ArxivSource(BasePaperSource):
             query = f"cat:{domain}"
             logger.info(f"  正在抓取领域 {domain}...")
 
+            # 内部请求量为用户配置的 3 倍，确保能在历史记录中找到足够的新论文
+            internal_max = self.max_results * 3
+
             search = arxiv.Search(
-                query=query, max_results=self.max_results, sort_by=arxiv.SortCriterion.SubmittedDate
+                query=query, max_results=internal_max, sort_by=arxiv.SortCriterion.SubmittedDate
             )
 
             # 添加重试机制
@@ -150,13 +160,32 @@ class ArxivSource(BasePaperSource):
             while retry_count <= max_retries:
                 try:
                     count = 0
+                    api_total = 0
+                    skipped_processed = 0
+                    skipped_old = 0
+                    consecutive_processed = 0
+                    # 早停阈值：连续遇到已处理论文超过此数量则认为已到达上次抓取边界
+                    early_stop_threshold = 50
+
                     with _timeout_guard(fetch_timeout_seconds):
                         for result in self.client.results(search):
+                            api_total += 1
                             paper_id = result.get_short_id()
 
                             # 去重：跳过已处理的论文
                             if self.is_processed(paper_id):
+                                skipped_processed += 1
+                                consecutive_processed += 1
+                                # 早停：连续遇到大量已处理论文，说明已到达历史边界
+                                if consecutive_processed >= early_stop_threshold:
+                                    logger.info(
+                                        f"    连续 {early_stop_threshold} 篇已处理，已到达历史边界，停止继续获取"
+                                    )
+                                    break
                                 continue
+
+                            # 遇到新论文时重置连续计数器
+                            consecutive_processed = 0
 
                             # 去重：跳过本次已抓取的论文
                             if paper_id in all_papers:
@@ -164,6 +193,7 @@ class ArxivSource(BasePaperSource):
 
                             # 时间过滤
                             if result.published < cutoff_date:
+                                skipped_old += 1
                                 continue
 
                             # 转换为统一格式
@@ -182,7 +212,14 @@ class ArxivSource(BasePaperSource):
                             all_papers[paper_id] = metadata
                             count += 1
 
+                    # 增强诊断日志
                     logger.info(f"    领域 {domain}: 发现 {count} 篇新论文")
+                    if api_total > 0 and count == 0:
+                        logger.info(
+                            f"    诊断信息: API 返回 {api_total} 篇，"
+                            f"已处理跳过 {skipped_processed} 篇，"
+                            f"时间过滤 {skipped_old} 篇"
+                        )
                     domain_failed = False
                     break  # 成功则退出重试循环
 

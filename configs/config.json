@@ -197,14 +197,8 @@
   // Report Configuration
   // ==================================================
   "report_settings": {
-    "enable_html_report": true
-  },
-
-  // ==================================================
-  // Daily Research Mode Configuration
-  // ==================================================
-  "daily_research": {
-    "enable_deep_analysis": false
+    "enable_html_report": true,
+    "enable_markdown_report": true
   },
 
   // ==================================================
@@ -219,6 +213,37 @@
   // ==================================================
   "token_tracking": {
     "enabled": true
+  },
+
+  // ==================================================
+  // Network Proxy Configuration
+  // ==================================================
+  "proxy": {
+    "enabled": false,
+    "url": "",
+    "no_proxy": "localhost,127.0.0.1",
+    "scope": {
+      "arxiv": true,
+      "openalex": false,
+      "semantic_scholar": false,
+      "llm_api": false,
+      "notifications": false,
+      "update_check": false
+    }
+  },
+
+  // ==================================================
+  // WebDAV Sync Configuration
+  // ==================================================
+  "webdav": {
+    "enabled": true,
+    "remote_path": "/arxiv-daily-researcher/",
+    "sync_mode": "after_report",
+    "cron_schedule": "0 23 * * *",
+    "sync_configs": true,
+    "sync_history": false,
+    "sync_keywords": false,
+    "sync_reports": false
   },
 
   // ==================================================

@@ -58,7 +58,7 @@ def render(_env_values: dict, config_values: dict):
 
     # ---- Search Settings ----
     st.markdown(
-        f'<p class="section-title">{t("search_settings_title")}</p>', unsafe_allow_html=True
+        f'<p class="section-title">🔎 {t("search_settings_title")}</p>', unsafe_allow_html=True
     )
     st.markdown(f'<p class="hint-text">{t("search_settings_hint")}</p>', unsafe_allow_html=True)
 
@@ -85,7 +85,9 @@ def render(_env_values: dict, config_values: dict):
     st.divider()
 
     # ---- Data Sources ----
-    st.markdown(f'<p class="section-title">{t("data_sources_title")}</p>', unsafe_allow_html=True)
+    st.markdown(
+        f'<p class="section-title">🧭 {t("data_sources_title")}</p>', unsafe_allow_html=True
+    )
     st.markdown(f'<p class="hint-text">{t("data_sources_hint")}</p>', unsafe_allow_html=True)
 
     current_sources = flat.get("enabled_sources", ["arxiv"])
@@ -120,7 +122,9 @@ def render(_env_values: dict, config_values: dict):
     st.divider()
 
     # ---- ArXiv Domains ----
-    st.markdown(f'<p class="section-title">{t("arxiv_domains_title")}</p>', unsafe_allow_html=True)
+    st.markdown(
+        f'<p class="section-title">🗂️ {t("arxiv_domains_title")}</p>', unsafe_allow_html=True
+    )
     st.markdown(f'<p class="hint-text">{t("arxiv_domains_hint")}</p>', unsafe_allow_html=True)
 
     current_domains = flat.get("domains", ["quant-ph"])

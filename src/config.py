@@ -2,7 +2,7 @@ import os
 import json
 import json5  # 用于加载带注释的配置文件
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -156,6 +156,7 @@ class Settings(BaseSettings):
 
     # ==================== 报告配置 ====================
     ENABLE_HTML_REPORT: bool = True  # 是否同时生成HTML格式报告
+    ENABLE_MARKDOWN_REPORT: bool = True  # 是否生成Markdown格式报告
     TOKEN_TRACKING_ENABLED: bool = True  # 是否在报告和通知中显示 token 消耗统计
 
     # ==================== Daily Research 模式配置 ====================
@@ -170,6 +171,31 @@ class Settings(BaseSettings):
 
     # ==================== 自动更新配置 ====================
     AUTO_UPDATE_ENABLED: bool = True  # 是否启用自动更新检查
+
+    # ==================== 网络代理配置 ====================
+    PROXY_ENABLED: bool = False  # 是否启用网络代理
+    PROXY_URL: str = ""  # 代理地址，如 http://127.0.0.1:7890 或 socks5://127.0.0.1:1080
+    PROXY_NO_PROXY: str = "localhost,127.0.0.1"  # 不使用代理的地址列表
+    # 各服务独立代理开关
+    PROXY_ARXIV: bool = True  # ArXiv API 是否使用代理
+    PROXY_OPENALEX: bool = False  # OpenAlex API 是否使用代理
+    PROXY_SEMANTIC_SCHOLAR: bool = False  # Semantic Scholar API 是否使用代理
+    PROXY_LLM_API: bool = False  # LLM API 是否使用代理
+    PROXY_NOTIFICATIONS: bool = False  # 通知 Webhook 是否使用代理
+    PROXY_UPDATE_CHECK: bool = False  # 检查更新是否使用代理
+
+    # ==================== WebDAV 同步配置 ====================
+    WEBDAV_ENABLED: bool = False  # 是否启用 WebDAV 同步
+    WEBDAV_URL: str = ""  # WebDAV 服务器地址（从 .env 加载）
+    WEBDAV_USERNAME: str = ""  # WebDAV 用户名（从 .env 加载）
+    WEBDAV_PASSWORD: str = ""  # WebDAV 密码（从 .env 加载）
+    WEBDAV_REMOTE_PATH: str = "/arxiv-daily-researcher/"  # 远程存储根路径
+    WEBDAV_SYNC_MODE: str = "after_report"  # 同步模式: manual / scheduled / after_report
+    WEBDAV_CRON_SCHEDULE: str = "0 23 * * *"  # 定时同步 cron 表达式
+    WEBDAV_SYNC_CONFIGS: bool = True  # 是否同步配置文件
+    WEBDAV_SYNC_HISTORY: bool = True  # 是否同步历史记录
+    WEBDAV_SYNC_KEYWORDS: bool = True  # 是否同步关键词数据
+    WEBDAV_SYNC_REPORTS: bool = False  # 是否同步报告（体积较大）
 
     # ==================== 运行锁配置 ====================
     RUN_LOCK_MAX_AGE_HOURS: int = 12  # 锁超龄阈值（小时），超时将尝试回收卡死任务
@@ -426,6 +452,7 @@ class Settings(BaseSettings):
             if "report_settings" in config:
                 rpt_cfg = config["report_settings"]
                 self.ENABLE_HTML_REPORT = rpt_cfg.get("enable_html_report", False)
+                self.ENABLE_MARKDOWN_REPORT = rpt_cfg.get("enable_markdown_report", True)
 
             # 加载 daily research 模式配置
             if "daily_research" in config:
@@ -459,6 +486,32 @@ class Settings(BaseSettings):
                 tt_cfg = config["token_tracking"]
                 self.TOKEN_TRACKING_ENABLED = tt_cfg.get("enabled", True)
 
+            # 加载网络代理配置
+            if "proxy" in config:
+                px_cfg = config["proxy"]
+                self.PROXY_ENABLED = px_cfg.get("enabled", False)
+                self.PROXY_URL = px_cfg.get("url", "")
+                self.PROXY_NO_PROXY = px_cfg.get("no_proxy", "localhost,127.0.0.1")
+                scope = px_cfg.get("scope", {})
+                self.PROXY_ARXIV = scope.get("arxiv", True)
+                self.PROXY_OPENALEX = scope.get("openalex", False)
+                self.PROXY_SEMANTIC_SCHOLAR = scope.get("semantic_scholar", False)
+                self.PROXY_LLM_API = scope.get("llm_api", False)
+                self.PROXY_NOTIFICATIONS = scope.get("notifications", False)
+                self.PROXY_UPDATE_CHECK = scope.get("update_check", False)
+
+            # 加载 WebDAV 同步配置（仅同步设置，凭据从 .env 加载）
+            if "webdav" in config:
+                wd_cfg = config["webdav"]
+                self.WEBDAV_ENABLED = wd_cfg.get("enabled", False)
+                self.WEBDAV_REMOTE_PATH = wd_cfg.get("remote_path", "/arxiv-daily-researcher/")
+                self.WEBDAV_SYNC_MODE = wd_cfg.get("sync_mode", "after_report")
+                self.WEBDAV_CRON_SCHEDULE = wd_cfg.get("cron_schedule", "0 23 * * *")
+                self.WEBDAV_SYNC_CONFIGS = wd_cfg.get("sync_configs", True)
+                self.WEBDAV_SYNC_HISTORY = wd_cfg.get("sync_history", True)
+                self.WEBDAV_SYNC_KEYWORDS = wd_cfg.get("sync_keywords", True)
+                self.WEBDAV_SYNC_REPORTS = wd_cfg.get("sync_reports", False)
+
             # 加载研究趋势模式配置
             if "trend_research" in config:
                 tr = config["trend_research"]
@@ -488,6 +541,39 @@ class Settings(BaseSettings):
 
             traceback.print_exc()
             return {}
+
+    def get_proxy_dict(self, service: str = "") -> Optional[Dict[str, str]]:
+        """
+        获取指定服务的代理配置字典，适用于 requests.Session.proxies。
+
+        参数:
+            service: 服务名，如 "arxiv"、"openalex"、"semantic_scholar"、"llm_api"、"notifications"
+                     空字符串表示仅检查全局开关
+
+        返回:
+            Dict[str, str]: 代理字典 {"http": url, "https": url}，未启用时返回 None
+        """
+        if not self.PROXY_ENABLED or not self.PROXY_URL:
+            return None
+
+        # 检查服务级别的开关
+        scope_map = {
+            "arxiv": self.PROXY_ARXIV,
+            "openalex": self.PROXY_OPENALEX,
+            "semantic_scholar": self.PROXY_SEMANTIC_SCHOLAR,
+            "llm_api": self.PROXY_LLM_API,
+            "notifications": self.PROXY_NOTIFICATIONS,
+            "update_check": self.PROXY_UPDATE_CHECK,
+        }
+
+        if service and not scope_map.get(service, False):
+            return None
+
+        proxy_url = self.PROXY_URL.strip()
+        return {
+            "http": proxy_url,
+            "https": proxy_url,
+        }
 
     def get_merged_keywords(self) -> Dict[str, float]:
         """

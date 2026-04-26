@@ -54,7 +54,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
     "tab_notifications": {"zh": "通知", "en": "Notifications"},
     "tab_advanced": {"zh": "高级设置", "en": "Advanced"},
     "tab_reports": {"zh": "报告查看", "en": "Reports"},
-    "tab_run_manager": {"zh": "运行管理", "en": "Run Manager"},
+    "tab_run_manager": {"zh": "每日推送", "en": "Daily Push"},
     "tab_trend_runner": {"zh": "趋势分析", "en": "Trend Analysis"},
     # ── llm.py ───────────────────────────────────────────────────────────
     "cheap_llm_title": {
@@ -136,7 +136,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
     "report_no_prev": {"zh": "已是最早的报告", "en": "No earlier reports"},
     "report_no_next": {"zh": "已是最新的报告", "en": "No newer reports"},
     # ── run_manager.py ──
-    "run_manager_title": {"zh": "运行管理", "en": "Run Manager"},
+    "run_manager_title": {"zh": "每日推送", "en": "Daily Push"},
     "run_now_section_title": {"zh": "立即运行每日研究", "en": "Run Daily Research Now"},
     "run_now_btn": {"zh": "立即运行", "en": "Run Now"},
     "run_now_hint": {
@@ -149,6 +149,8 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "en": "Send stop signal to all running daily research and trend analysis processes.",
     },
     "run_log_title": {"zh": "运行日志", "en": "Run Logs"},
+    "daily_research_settings_title": {"zh": "每日研究设置", "en": "Daily Research Settings"},
+    "markdown_report_label": {"zh": "Markdown 报告", "en": "Markdown Report"},
     "no_logs_found": {"zh": "暂未找到日志文件。", "en": "No log files found."},
     "pid_killed": {"zh": "已向进程 {pid} 发送停止信号", "en": "Sent stop signal to process {pid}"},
     "no_running_process": {
@@ -234,6 +236,8 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
     "trend_tldr_batch_label": {"zh": "TLDR 批次并发数", "en": "TLDR Batch Size"},
     "trend_skills_label": {"zh": "启用的分析技能", "en": "Enabled Analysis Skills"},
     "trend_output_formats_label": {"zh": "输出格式", "en": "Output Formats"},
+    "trend_output_md_label": {"zh": "Markdown 报告", "en": "Markdown Report"},
+    "trend_output_html_label": {"zh": "HTML 报告", "en": "HTML Report"},
     # ── search.py ────────────────────────────────────────────────────────
     "search_settings_title": {"zh": "搜索设置", "en": "Search Settings"},
     "search_settings_hint": {
@@ -473,7 +477,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "zh": "推荐：3-5，过高可能触发速率限制。",
         "en": "Recommended: 3-5. Higher values may trigger rate limits.",
     },
-    "advanced_reports_title": {"zh": "报告", "en": "Reports"},
+    "advanced_reports_title": {"zh": "功能开关", "en": "Feature Toggles"},
     "html_reports_label": {"zh": "HTML 报告", "en": "HTML reports"},
     "token_tracking_label": {"zh": "Token 用量追踪", "en": "Token tracking"},
     "auto_update_label": {"zh": "自动更新检查", "en": "Auto-update check"},
@@ -713,6 +717,120 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "zh": "⚠️ 日志文件已不存在，可能已被清理。",
         "en": "⚠️ Log file no longer exists, it may have been cleaned up.",
     },
+    # ── proxy.py ──────────────────────────────────────────────────────
+    "tab_proxy": {"zh": "网络代理", "en": "Network Proxy"},
+    "proxy_title": {"zh": "网络代理设置", "en": "Network Proxy Settings"},
+    "proxy_enable_label": {"zh": "启用网络代理", "en": "Enable Network Proxy"},
+    "proxy_url_label": {"zh": "代理地址", "en": "Proxy URL"},
+    "proxy_url_help": {
+        "zh": "支持 HTTP 代理（http://host:port）和 SOCKS5 代理（socks5://host:port）",
+        "en": "Supports HTTP proxy (http://host:port) and SOCKS5 proxy (socks5://host:port)",
+    },
+    "proxy_no_proxy_label": {"zh": "不使用代理的地址", "en": "No Proxy"},
+    "proxy_no_proxy_help": {
+        "zh": "每行一个地址，这些地址将不使用代理",
+        "en": "One address per line, these addresses will bypass the proxy",
+    },
+    "proxy_scope_title": {"zh": "代理范围控制", "en": "Proxy Scope Control"},
+    "proxy_scope_hint": {
+        "zh": "选择哪些服务使用代理。可以按需为不同服务分别启用或禁用代理。",
+        "en": "Select which services use the proxy. Enable or disable proxy for each service independently.",
+    },
+    "proxy_arxiv_label": {"zh": "ArXiv API", "en": "ArXiv API"},
+    "proxy_arxiv_help": {
+        "zh": "ArXiv 论文抓取 API（export.arxiv.org）",
+        "en": "ArXiv paper fetching API (export.arxiv.org)",
+    },
+    "proxy_openalex_label": {"zh": "OpenAlex API", "en": "OpenAlex API"},
+    "proxy_openalex_help": {
+        "zh": "OpenAlex 期刊论文数据源",
+        "en": "OpenAlex journal paper data source",
+    },
+    "proxy_semantic_scholar_label": {
+        "zh": "Semantic Scholar API",
+        "en": "Semantic Scholar API",
+    },
+    "proxy_semantic_scholar_help": {
+        "zh": "Semantic Scholar TLDR 增强功能",
+        "en": "Semantic Scholar TLDR enrichment",
+    },
+    "proxy_llm_api_label": {"zh": "LLM API", "en": "LLM API"},
+    "proxy_llm_api_help": {
+        "zh": "LLM 大模型 API（评分、分析等）",
+        "en": "LLM API calls (scoring, analysis, etc.)",
+    },
+    "proxy_notifications_label": {"zh": "通知 Webhook", "en": "Notification Webhooks"},
+    "proxy_notifications_help": {
+        "zh": "企业微信、钉钉、Telegram 等通知推送",
+        "en": "WeChat Work, DingTalk, Telegram, and other notification pushes",
+    },
+    "proxy_update_check_label": {"zh": "检查更新", "en": "Update Check"},
+    "proxy_update_check_help": {
+        "zh": "GitHub 版本更新检查（需访问 api.github.com）",
+        "en": "GitHub version update check (requires access to api.github.com)",
+    },
+    # ── data_management.py ───────────────────────────────────────────
+    "tab_data_management": {"zh": "数据管理", "en": "Data Management"},
+    "dm_export_title": {"zh": "配置导出", "en": "Config Export"},
+    "dm_export_hint": {
+        "zh": "一键打包导出 config.json 和 .env 配置文件。",
+        "en": "One-click export of config.json and .env as a zip archive.",
+    },
+    "dm_export_btn": {"zh": "📦 导出配置", "en": "📦 Export Config"},
+    "dm_export_no_files": {
+        "zh": "未找到可导出的配置文件",
+        "en": "No config files found to export",
+    },
+    "dm_export_contents": {
+        "zh": "包含: config.json + .env",
+        "en": "Contains: config.json + .env",
+    },
+    "dm_webdav_title": {"zh": "WebDAV 同步", "en": "WebDAV Sync"},
+    "dm_webdav_hint": {
+        "zh": "将配置和数据文件同步到 WebDAV 服务器，实现跨设备备份与恢复。默认关闭，只有启用后才会同步。",
+        "en": "Sync config and data files to a WebDAV server for cross-device backup and restore. Disabled by default.",
+    },
+    "dm_webdav_enable": {"zh": "启用 WebDAV 同步", "en": "Enable WebDAV Sync"},
+    "dm_webdav_url_label": {"zh": "WebDAV 服务器地址", "en": "WebDAV Server URL"},
+    "dm_webdav_username_label": {"zh": "用户名", "en": "Username"},
+    "dm_webdav_password_label": {"zh": "密码 / 应用密码", "en": "Password / App Password"},
+    "dm_webdav_remote_path": {"zh": "远程存储路径", "en": "Remote Path"},
+    "dm_webdav_remote_path_help": {
+        "zh": "WebDAV 服务器上的存储根路径",
+        "en": "Root storage path on the WebDAV server",
+    },
+    "dm_webdav_sync_settings": {"zh": "同步设置", "en": "Sync Settings"},
+    "dm_webdav_sync_mode": {"zh": "同步模式", "en": "Sync Mode"},
+    "dm_webdav_mode_manual": {"zh": "手动同步", "en": "Manual"},
+    "dm_webdav_mode_scheduled": {"zh": "定时同步", "en": "Scheduled"},
+    "dm_webdav_mode_after_report": {"zh": "每日报告完成后", "en": "After Daily Report"},
+    "dm_webdav_sync_time": {"zh": "定时同步时间", "en": "Scheduled Sync Time"},
+    "dm_webdav_sync_time_help": {
+        "zh": "选择每天自动同步的时间（小时:分钟）",
+        "en": "Select the daily auto-sync time (hour:minute)",
+    },
+    "dm_webdav_scope_title": {"zh": "同步范围", "en": "Sync Scope"},
+    "dm_webdav_sync_configs_label": {"zh": "配置文件 (config.json)", "en": "Config (config.json)"},
+    "dm_webdav_sync_history_label": {"zh": "历史记录 (history/)", "en": "History (history/)"},
+    "dm_webdav_sync_keywords_label": {"zh": "关键词数据 (keywords/)", "en": "Keywords (keywords/)"},
+    "dm_webdav_sync_reports_label": {"zh": "报告文件 (reports/)", "en": "Reports (reports/)"},
+    "dm_webdav_test_btn": {"zh": "🔌 测试连接", "en": "🔌 Test Connection"},
+    "dm_webdav_upload_btn": {"zh": "⬆️ 上传同步", "en": "⬆️ Upload"},
+    "dm_webdav_download_btn": {"zh": "⬇️ 下载恢复", "en": "⬇️ Download"},
+    "dm_webdav_not_configured": {
+        "zh": "WebDAV 未配置或未启用。请填写服务器地址和凭据。",
+        "en": "WebDAV not configured or not enabled. Please fill in the server URL and credentials.",
+    },
+    "dm_webdav_test_ok": {"zh": "✅ WebDAV 连接成功！", "en": "✅ WebDAV connection successful!"},
+    "dm_webdav_test_fail": {"zh": "❌ WebDAV 连接失败", "en": "❌ WebDAV connection failed"},
+    "dm_webdav_missing_lib": {
+        "zh": "❌ 缺少 webdavclient3 库。请运行: pip install webdavclient3",
+        "en": "❌ Missing webdavclient3 library. Run: pip install webdavclient3",
+    },
+    "dm_webdav_syncing": {"zh": "正在同步...", "en": "Syncing..."},
+    "dm_webdav_sync_done": {"zh": "✅ 同步完成", "en": "✅ Sync completed"},
+    "dm_webdav_sync_partial": {"zh": "⚠️ 部分同步成功", "en": "⚠️ Partial sync success"},
+    "dm_webdav_sync_error": {"zh": "❌ 同步失败", "en": "❌ Sync failed"},
 }
 
 

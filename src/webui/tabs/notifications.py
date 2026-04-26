@@ -10,8 +10,10 @@ def render(env_values: dict, config_values: dict):
     flat = config_values
 
     # ---- Global Toggle ----
-    st.markdown(f'<p class="section-title">{t("notif_settings_title")}</p>', unsafe_allow_html=True)
-    st.markdown(f'<p class="hint-text">{t("notif_settings_hint")}</p>', unsafe_allow_html=True)
+    st.markdown(
+        f'<p class="hint-text">{t("notif_settings_hint")}</p>',
+        unsafe_allow_html=True,
+    )
 
     st.toggle(
         t("enable_notifications"),

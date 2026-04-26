@@ -126,6 +126,8 @@ SECTION_COMMENTS = {
     "report_settings": "Report Configuration",
     "auto_update": "Auto-update Configuration",
     "token_tracking": "Token Tracking Configuration",
+    "proxy": "Network Proxy Configuration",
+    "webdav": "WebDAV Sync Configuration",
     "trend_research": "Trend Research Mode Configuration",
 }
 
@@ -363,6 +365,7 @@ def build_config_dict(
     mineru_poll_interval: int = 3,
     mineru_poll_timeout: int = 300,
     enable_html_report: bool = True,
+    enable_markdown_report: bool = True,
     auto_update_enabled: bool = True,
     token_tracking_enabled: bool = True,
     trend_default_date_range_days: int = 365,
@@ -373,6 +376,23 @@ def build_config_dict(
     trend_tldr_batch_size: int = 10,
     trend_output_formats: Optional[List[str]] = None,
     trend_enabled_skills: Optional[List[str]] = None,
+    proxy_enabled: bool = False,
+    proxy_url: str = "",
+    proxy_no_proxy: str = "localhost,127.0.0.1",
+    proxy_arxiv: bool = True,
+    proxy_openalex: bool = False,
+    proxy_semantic_scholar: bool = False,
+    proxy_llm_api: bool = False,
+    proxy_notifications: bool = False,
+    proxy_update_check: bool = False,
+    webdav_enabled: bool = False,
+    webdav_remote_path: str = "/arxiv-researcher/",
+    webdav_sync_mode: str = "manual",
+    webdav_cron_schedule: str = "0 23 * * *",
+    webdav_sync_configs: bool = True,
+    webdav_sync_history: bool = True,
+    webdav_sync_keywords: bool = True,
+    webdav_sync_reports: bool = False,
 ) -> Dict[str, Any]:
     """Build a nested config.json dict from flat parameters."""
 
@@ -501,12 +521,36 @@ def build_config_dict(
         },
         "report_settings": {
             "enable_html_report": enable_html_report,
+            "enable_markdown_report": enable_markdown_report,
         },
         "auto_update": {
             "enabled": auto_update_enabled,
         },
         "token_tracking": {
             "enabled": token_tracking_enabled,
+        },
+        "proxy": {
+            "enabled": proxy_enabled,
+            "url": proxy_url,
+            "no_proxy": proxy_no_proxy,
+            "scope": {
+                "arxiv": proxy_arxiv,
+                "openalex": proxy_openalex,
+                "semantic_scholar": proxy_semantic_scholar,
+                "llm_api": proxy_llm_api,
+                "notifications": proxy_notifications,
+                "update_check": proxy_update_check,
+            },
+        },
+        "webdav": {
+            "enabled": webdav_enabled,
+            "remote_path": webdav_remote_path,
+            "sync_mode": webdav_sync_mode,
+            "cron_schedule": webdav_cron_schedule,
+            "sync_configs": webdav_sync_configs,
+            "sync_history": webdav_sync_history,
+            "sync_keywords": webdav_sync_keywords,
+            "sync_reports": webdav_sync_reports,
         },
         "trend_research": {
             "default_date_range_days": trend_default_date_range_days,
@@ -647,6 +691,7 @@ def flatten_config_dict(config: Dict[str, Any]) -> Dict[str, Any]:
     # Report
     rs = config.get("report_settings", {})
     flat["enable_html_report"] = rs.get("enable_html_report", True)
+    flat["enable_markdown_report"] = rs.get("enable_markdown_report", True)
 
     # Auto-update
     au = config.get("auto_update", {})
@@ -655,6 +700,30 @@ def flatten_config_dict(config: Dict[str, Any]) -> Dict[str, Any]:
     # Token tracking
     tt = config.get("token_tracking", {})
     flat["token_tracking_enabled"] = tt.get("enabled", True)
+
+    # Proxy
+    px = config.get("proxy", {})
+    flat["proxy_enabled"] = px.get("enabled", False)
+    flat["proxy_url"] = px.get("url", "")
+    flat["proxy_no_proxy"] = px.get("no_proxy", "localhost,127.0.0.1")
+    px_scope = px.get("scope", {})
+    flat["proxy_arxiv"] = px_scope.get("arxiv", True)
+    flat["proxy_openalex"] = px_scope.get("openalex", False)
+    flat["proxy_semantic_scholar"] = px_scope.get("semantic_scholar", False)
+    flat["proxy_llm_api"] = px_scope.get("llm_api", False)
+    flat["proxy_notifications"] = px_scope.get("notifications", False)
+    flat["proxy_update_check"] = px_scope.get("update_check", False)
+
+    # WebDAV
+    wd = config.get("webdav", {})
+    flat["webdav_enabled"] = wd.get("enabled", False)
+    flat["webdav_remote_path"] = wd.get("remote_path", "/arxiv-daily-researcher/")
+    flat["webdav_sync_mode"] = wd.get("sync_mode", "after_report")
+    flat["webdav_cron_schedule"] = wd.get("cron_schedule", "0 23 * * *")
+    flat["webdav_sync_configs"] = wd.get("sync_configs", True)
+    flat["webdav_sync_history"] = wd.get("sync_history", True)
+    flat["webdav_sync_keywords"] = wd.get("sync_keywords", True)
+    flat["webdav_sync_reports"] = wd.get("sync_reports", False)
 
     # Trend research
     tr = config.get("trend_research", {})
