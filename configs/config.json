@@ -44,7 +44,20 @@
   "keywords": {
     "primary_keywords": {
       "weight": 1.0,
-      "keywords": []
+      "keywords": ["smart textile",
+      "functional textile",
+      "wearable textile",
+      "thermal comfort",
+      "moisture management",
+      "Solar heating",
+      "radiative cooling",
+      "personal thermal management",
+      "Janus textile",
+      "Passive radiative cooling",
+      "Energy saving",
+      "Energy saving",
+      "Cotton fabric",
+      "Cellulose acetate"]
     },
     "enable_reference_extraction": true,
     "reference_keywords_config": {
