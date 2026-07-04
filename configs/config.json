@@ -15,7 +15,15 @@
     "enabled": [
       "arxiv"
     ],
-    "journals": [],
+    "journals": ["Advanced Materials",
+      "ACS Applied Materials & Interfaces",
+      "Journal of Materials Chemistry A",
+      "Carbohydrate Polymers",
+      "Energy & Buildings",
+      "Chemical Engineering Journal",
+      "Composites Part B: Engineering",
+      "ACS Sustainable Chemistry & Engineering",
+      "Materials Horizons"],
     "reports_by_source": true,
     "arxiv": {
       "fetch_timeout_seconds": 180
