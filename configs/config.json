@@ -3,9 +3,12 @@
   // Search Configuration
   // ==================================================
   "search_settings": {
-    "search_days": 14,
+    "search_days": 3,
     "max_results": 100,
-    "max_results_per_source": {}
+    "max_results_per_source": {
+      "arxiv": 100,
+      "openalex": 70
+    }
   },
 
   // ==================================================
@@ -15,7 +18,8 @@
     "enabled": [
       "arxiv"
     ],
-    "journals": ["Advanced Materials",
+    "journals": [
+      "Advanced Materials",
       "ACS Applied Materials & Interfaces",
       "Journal of Materials Chemistry A",
       "Carbohydrate Polymers",
@@ -23,8 +27,8 @@
       "Chemical Engineering Journal",
       "Composites Part B: Engineering",
       "ACS Sustainable Chemistry & Engineering",
-      "Materials Horizons"],
-    "reports_by_source": true,
+      "Materials Horizons"
+    ],
     "arxiv": {
       "fetch_timeout_seconds": 180
     }
@@ -42,7 +46,10 @@
   // ==================================================
   "target_domains": {
     "domains": [
-      "quant-ph"
+      "cond-mat.mtrl-sci",
+      "physics.chem-ph",
+      "chem.ms",
+      "cond-mat.soft"
     ]
   },
 
@@ -52,22 +59,31 @@
   "keywords": {
     "primary_keywords": {
       "weight": 1.0,
-      "keywords": ["smart textile",
-      "functional textile",
-      "wearable textile",
-      "thermal comfort",
-      "moisture management",
-      "Solar heating",
-      "radiative cooling",
-      "personal thermal management",
-      "Janus textile",
-      "Passive radiative cooling",
-      "Energy saving",
-      "Energy saving",
-      "Cotton fabric",
-      "Cellulose acetate"]
+      "keywords": [
+        "superhydrophobic aerogel",
+        "de-icing",
+        "phase change material",
+        "anti-icing",
+        "photothermal",
+        "NaOH/urea",
+        "PCM",
+        "thermal energy storage",
+        "aerogel composite",
+        "solar-thermal",
+        "cotton aerogel",
+        "cellulose aerogel",
+        "icephobic",
+        "thermal regulation",
+        "crosslinked cellulose",
+        "waste cotton",
+        "recycled cotton",
+        "PDMS",
+        "carbon black",
+        "Nano-Fe3O4",
+        "Polyethylene glycol"
+      ]
     },
-    "enable_reference_extraction": true,
+    "enable_reference_extraction": false,
     "reference_keywords_config": {
       "max_keywords": 10,
       "similarity_threshold": 0.75,
@@ -86,7 +102,7 @@
         }
       }
     },
-    "research_context": "纺织工程硕士研究生，研究方向是双模式个人热管理材料研发"
+    "research_context": "纺织工程硕士研究生，研究废弃棉纤维基气凝胶的防冰除冰应用，涉及碱/尿素低温溶解体系（7wt% NaOH/12wt% 尿素）、环氧氯丙烷交联、PCM相变材料、光热转换（炭黑/纳米Fe3O4）、疏水改性。"
   },
 
   // ==================================================
@@ -102,10 +118,10 @@
       "bonus_points": 5.0
     },
     "passing_score_formula": {
-      "base_score": 1.5,
-      "weight_coefficient": 2.5
+      "base_score": 0.5,
+      "weight_coefficient": 0.2
     },
-    "include_all_in_report": true
+    "include_all_in_report": false
   },
 
   // ==================================================
@@ -144,7 +160,7 @@
     },
     "report": {
       "enabled": true,
-      "frequency": "weekly"
+      "frequency": "daily"
     }
   },
 
@@ -156,16 +172,16 @@
     "on_success": true,
     "on_failure": true,
     "attach_reports": true,
-    "top_n": 5,
+    "top_n": 10,
     "channels": {
       "email": {
         "enabled": false
       },
       "wechat_work": {
-        "enabled": true
+        "enabled": false
       },
       "dingtalk": {
-        "enabled": false
+        "enabled": true
       },
       "telegram": {
         "enabled": false
@@ -208,7 +224,7 @@
   // PDF Parser Configuration
   // ==================================================
   "pdf_parser": {
-    "mode": "mineru",
+    "mode": "pymupdf",
     "mineru_model_version": "vlm",
     "poll_interval": 3,
     "poll_timeout": 300
@@ -219,7 +235,8 @@
   // ==================================================
   "report_settings": {
     "enable_html_report": true,
-    "enable_markdown_report": true
+    "enable_markdown_report": true,
+    "directory_structure": "date_grouped"
   },
 
   // ==================================================
@@ -257,14 +274,14 @@
   // WebDAV Sync Configuration
   // ==================================================
   "webdav": {
-    "enabled": true,
-    "remote_path": "/arxiv-daily-researcher/",
+    "enabled": false,
+    "remote_path": "/arxiv-reports/",
     "sync_mode": "after_report",
     "cron_schedule": "0 23 * * *",
     "sync_configs": true,
     "sync_history": false,
     "sync_keywords": false,
-    "sync_reports": false
+    "sync_reports": true
   },
 
   // ==================================================
