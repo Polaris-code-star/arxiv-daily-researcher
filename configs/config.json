@@ -60,27 +60,20 @@
     "primary_keywords": {
       "weight": 1.0,
       "keywords": [
-        "superhydrophobic aerogel",
-        "de-icing",
-        "phase change material",
-        "anti-icing",
-        "photothermal",
-        "NaOH/urea",
-        "PCM",
-        "thermal energy storage",
-        "aerogel composite",
-        "solar-thermal",
-        "cotton aerogel",
-        "cellulose aerogel",
-        "icephobic",
-        "thermal regulation",
-        "crosslinked cellulose",
-        "waste cotton",
-        "recycled cotton",
-        "PDMS",
-        "carbon black",
-        "Nano-Fe3O4",
-        "Polyethylene glycol"
+        "smart textile",
+      "functional textile",
+      "wearable textile",
+      "thermal comfort",
+      "moisture management",
+      "Solar heating",
+      "radiative cooling",
+      "personal thermal management",
+      "Janus textile",
+      "Passive radiative cooling",
+      "Energy saving",
+      "Energy saving",
+      "Cotton fabric",
+      "Cellulose acetate"
       ]
     },
     "enable_reference_extraction": false,
@@ -102,7 +95,7 @@
         }
       }
     },
-    "research_context": "纺织工程硕士研究生，研究废弃棉纤维基气凝胶的防冰除冰应用，涉及碱/尿素低温溶解体系（7wt% NaOH/12wt% 尿素）、环氧氯丙烷交联、PCM相变材料、光热转换（炭黑/纳米Fe3O4）、疏水改性。"
+    "research_context": "纺织工程硕士研究生，研究个人热管理纺织品，涉及辐射制冷、光热转换、醋酸纤维素、刮涂、棉织物。"
   },
 
   // ==================================================
