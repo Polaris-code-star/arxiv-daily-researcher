@@ -86,9 +86,11 @@ jobs:
                    data/reference_pdfs data/downloaded_pdfs logs
       - name: Test API endpoint
         run: |
-          curl -sS https://api.0lll0.cn/v1/models \
+          curl -sS https://api.0lll0.cn/v1/chat/completions \
             -H "Authorization: Bearer ${{ secrets.CHEAP_LLM_API_KEY }}" \
-             | head -c 500
+            -H "Content-Type: application/json" \
+            -d '{"model":"gpt-5.3-codex-spark","messages":[{"role":"user","content":"hello"}],"temperature":0.2}' \
+             | head -c 1000
 
       - name: Run research pipeline
         run: |
