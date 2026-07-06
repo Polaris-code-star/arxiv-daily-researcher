@@ -84,7 +84,13 @@ jobs:
                    data/reports/keyword_trend/html \
                    data/history data/keywords data/run \
                    data/reference_pdfs data/downloaded_pdfs logs
+      - name: Test API endpoint
+        run: |
+          curl -I https://api.0lll0.cn/v1/models
 
+      - name: Run research pipeline
+        run: |
+          python main.py
       - name: Run research pipeline
         run: python main.py
         env:
