@@ -84,40 +84,7 @@ jobs:
                    data/reports/keyword_trend/html \
                    data/history data/keywords data/run \
                    data/reference_pdfs data/downloaded_pdfs logs
-      - name: Test API endpoint
-        run: |
-          curl -sS https://api.0lll0.cn/v1/chat/completions \
-            -H "Authorization: Bearer ${{ secrets.CHEAP_LLM_API_KEY }}" \
-            -H "Content-Type: application/json" \
-            -d '{"model":"gpt-5.3-codex-spark","messages":[{"role":"user","content":"hello"}],"temperature":0.2}' \
-             | head -c 1000
-      - name: Check LLM config
-        run: |
-         grep -E "CHEAP_LLM__BASE_URL|CHEAP_LLM__MODEL_NAME|SMART_LLM__BASE_URL|SMART_LLM__MODEL_NAME|CHEAP_LLM__TEMPERATURE|SMART_LLM__TEMPERATURE" .env || true
-      - name: Run research pipeline
-        run: |
-          python main.py
-      - name: Test OpenAI SDK
-        run: |
-          set -a
-          source .env
-          set +a
-          python - <<'PY'
-          import os
-          from openai import OpenAI
-
-          client = OpenAI(
-          api_key=os.environ["CHEAP_LLM__API_KEY"],
-          base_url=os.environ["CHEAP_LLM__BASE_URL"],
-          )
-
-          r = client.chat.completions.create(
-              model=os.environ["CHEAP_LLM__MODEL_NAME"],
-              messages=[{"role": "user", "content": "hello"}],
-              temperature=float(os.environ["CHEAP_LLM__TEMPERATURE"]),
-          )
-          print(r.choices[0].message.content[:100])
-          PY
+    
       - name: Run research pipeline
         run: python main.py
         env:
