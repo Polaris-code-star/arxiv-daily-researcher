@@ -44,7 +44,7 @@
       "Composites Part a-Applied Science and Manufacturing",
       "Fibers and Polymers",
       "Nature",
-      "Surfaces and Interfaces",
+      "Surfaces and Interfaces"
     ],
     "arxiv": {
       "fetch_timeout_seconds": 180
@@ -79,7 +79,15 @@
     "primary_keywords": {
       "weight": 1.0,
       "keywords": [
-      "personal thermal management",
+     "textile",
+     "fabric",
+     "fiber",
+     "wearable",
+     "thermal management",
+     "radiative cooling",
+     "functional textile",
+     "smart textile",
+     "personal thermal management"
       ]
     },
     "enable_reference_extraction": false,
