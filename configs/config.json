@@ -3,11 +3,11 @@
   // Search Configuration
   // ==================================================
   "search_settings": {
-    "search_days": 5,
-    "max_results": 100,
+    "search_days": 7,
+    "max_results": 80,
     "max_results_per_source": {
-      "arxiv": 100,
-      "openalex": 70
+      "arxiv": 30,
+      "openalex": 20
     }
   },
 
