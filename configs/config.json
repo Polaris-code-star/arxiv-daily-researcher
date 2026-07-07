@@ -3,10 +3,11 @@
   // Search Configuration
   // ==================================================
   "search_settings": {
-    "search_days": 4,
-    "max_results": 100,
+    "search_days": 30,
+    "max_results": 150,
     "max_results_per_source": {
-      "arxiv": 100,
+      "arxiv": 30,
+      "journals": 50,
       "openalex": 70
     }
   },
@@ -116,10 +117,10 @@
       "bonus_points": 5.0
     },
     "passing_score_formula": {
-      "base_score": 0.5,
-      "weight_coefficient": 0.2
+      "base_score": 0.1,
+      "weight_coefficient": 0.03
     },
-    "include_all_in_report": false
+    "include_all_in_report": true
   },
 
   // ==================================================
