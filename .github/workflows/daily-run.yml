@@ -97,6 +97,27 @@ jobs:
       - name: Run research pipeline
         run: |
           python main.py
+      - name: Test OpenAI SDK
+        run: |
+          set -a
+          source .env
+          set +a
+          python - <<'PY'
+          import os
+          from openai import OpenAI
+
+          client = OpenAI(
+          api_key=os.environ["CHEAP_LLM__API_KEY"],
+          base_url=os.environ["CHEAP_LLM__BASE_URL"],
+          )
+
+          r = client.chat.completions.create(
+              model=os.environ["CHEAP_LLM__MODEL_NAME"],
+              messages=[{"role": "user", "content": "hello"}],
+              temperature=float(os.environ["CHEAP_LLM__TEMPERATURE"]),
+          )
+          print(r.choices[0].message.content[:100])
+          PY
       - name: Run research pipeline
         run: python main.py
         env:
