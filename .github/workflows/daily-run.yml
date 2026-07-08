@@ -63,7 +63,11 @@ jobs:
           SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
           GENERIC_WEBHOOK_URL=${{ secrets.GENERIC_WEBHOOK_URL }}
           ENVEOF
-
+      - name: Test Dingtalk webhook
+        run: |
+          curl -sS "${{ secrets.DINGTALK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{"msgtype":"text","text":{"content":"文献日报：GitHub Actions 钉钉机器人测试消息"}}'
       - name: Restore previous data
         uses: actions/cache@v4
         with:
