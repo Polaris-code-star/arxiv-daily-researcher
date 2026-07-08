@@ -63,15 +63,8 @@
         "thermal management",
         "radiative cooling",
         "solar heating",
-        "textile",
-        "fabric",
-        "fiber",
-        "wearable",
         "smart textile",
         "functional textile",
-        "cellulose",
-        "cotton fabric",
-        "coating"
       ]
     },
     "enable_reference_extraction": false,
