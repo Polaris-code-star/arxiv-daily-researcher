@@ -84,7 +84,12 @@ jobs:
         run: python main.py
         env:
           PYTHONUNBUFFERED: "1"
-
+      - name: Send Dingtalk summary
+        if: always()
+        run: |
+          curl -sS "${{ secrets.DINGTALK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"msgtype\":\"text\",\"text\":{\"content\":\"文献日报：GitHub Actions 运行完成。查看报告：${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}}"
       - name: Upload reports as artifacts
         if: always()
         uses: actions/upload-artifact@v4
