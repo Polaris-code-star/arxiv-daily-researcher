@@ -3,56 +3,34 @@
     "search_days": 4,
     "max_results": 150,
     "max_results_per_source": {
-      "arxiv": 30,
-      "journals": 50,
-      "openalex": 70
+      "openalex": 100
     }
   },
 
-  "data_sources": {
-    "enabled": [
-      "arxiv",
-      "journals",
-      "openalex"
-    ],
-    "journals": [
-      "Advanced Materials",
-      "ACS Applied Materials & Interfaces",
-      "Journal of Materials Chemistry A",
-      "Carbohydrate Polymers",
-      "Advanced Functional Materials",
-      "Chemical Engineering Journal",
-      "Composites Part B: Engineering",
-      "ACS Nano",
-      "Advanced Materials Technologies",
-      "Cellulose",
-      "Coatings",
-      "Nano-Micro Letters",
-      "Progress in Organic Coatings",
-      "Small",
-      "Advanced Fiber Materials",
-      "Surfaces and Interfaces"
-    ],
-    "reports_by_source": true,
-    "arxiv": {
-      "fetch_timeout_seconds": 180
-    }
-  },
-
-  "run_lock": {
-    "max_age_hours": 12
-  },
-
-  "target_domains": {
-    "domains": [
-      "cond-mat.mtrl-sci",
-      "physics.app-ph",
-      "cond-mat.soft",
-      "cs.HC",
-      "cs.LG",
-      "eess.SP"
-    ]
-  },
+"data_sources": {
+  "enabled": [
+    "openalex"
+  ],
+  "journals": [
+    "Advanced Materials",
+    "ACS Applied Materials & Interfaces",
+    "Journal of Materials Chemistry A",
+    "Carbohydrate Polymers",
+    "Advanced Functional Materials",
+    "Chemical Engineering Journal",
+    "Composites Part B: Engineering",
+    "ACS Nano",
+    "Advanced Materials Technologies",
+    "Cellulose",
+    "Coatings",
+    "Nano-Micro Letters",
+    "Progress in Organic Coatings",
+    "Small",
+    "Advanced Fiber Materials",
+    "Surfaces and Interfaces"
+  ],
+  "reports_by_source": true
+}
 
   "keywords": {
   "primary_keywords": {
