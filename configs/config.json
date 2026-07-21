@@ -1,6 +1,6 @@
 {
   "search_settings": {
-    "search_days": 2,
+    "search_days": 4,
     "max_results": 150,
     "max_results_per_source": {
       "arxiv": 30,
