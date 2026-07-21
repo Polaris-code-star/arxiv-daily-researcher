@@ -1,6 +1,6 @@
 {
   "search_settings": {
-    "search_days": 30,
+    "search_days": 3,
     "max_results": 150,
     "max_results_per_source": {
       "arxiv": 30,
@@ -23,7 +23,6 @@
       "Advanced Functional Materials",
       "Chemical Engineering Journal",
       "Composites Part B: Engineering",
-      "ACS Applied Materials & Interfaces",
       "ACS Nano",
       "Advanced Materials Technologies",
       "Cellulose",
@@ -32,7 +31,7 @@
       "Progress in Organic Coatings",
       "Small",
       "Advanced Fiber Materials",
-      "Surfaces and Interfaces",
+      "Surfaces and Interfaces"
     ],
     "reports_by_source": true,
     "arxiv": {
@@ -64,7 +63,7 @@
         "radiative cooling",
         "solar heating",
         "smart textile",
-        "functional textile",
+        "functional textile"
       ]
     },
     "enable_reference_extraction": false,
