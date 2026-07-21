@@ -253,13 +253,42 @@ class WebhookNotifier(BaseNotifier):
         self.webhook_url = webhook_url
         self.extra = kwargs  # secret, chat_id 等
 
-    def send(self, subject: str, body: str, attachments: Optional[List[Path]] = None) -> bool:
-        formatter = getattr(self, f"_format_{self.platform}", self._format_generic)
-        url, payload, headers = formatter(subject, body)
-        resp = requests.post(url, json=payload, headers=headers, timeout=30)
-        resp.raise_for_status()
-        logger.info(f"Webhook [{self.platform}] 通知已发送")
-        return True
+    def send(self, subject: str, body: str, attachments=None) -> bool:
+    formatter = getattr(
+        self,
+        f"_format_{self.platform}",
+        self._format_generic
+    )
+
+    url, payload, headers = formatter(subject, body)
+
+    resp = requests.post(
+        url,
+        json=payload,
+        headers=headers,
+        timeout=30
+    )
+
+    resp.raise_for_status()
+
+    # 钉钉需要额外检查业务返回码
+    if self.platform == "dingtalk":
+        try:
+            data = resp.json()
+        except ValueError:
+            raise RuntimeError(
+                f"钉钉返回了非 JSON 响应: {resp.text}"
+            )
+
+        if data.get("errcode") != 0:
+            raise RuntimeError(
+                f"钉钉通知发送失败: "
+                f"errcode={data.get('errcode')}, "
+                f"errmsg={data.get('errmsg')}"
+            )
+
+    logger.info(f"Webhook [{self.platform}] 通知已发送")
+    return True
 
     def _format_wechat_work(self, subject: str, body: str):
         """企业微信机器人 — body 已含完整 Markdown 模板内容"""
