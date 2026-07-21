@@ -92,32 +92,134 @@ class SearchAgent:
         """根据配置初始化数据源"""
         from config import settings as _settings
 
-        # 检查是否启用 ArXiv
+        # ============================================================
+        # 1. 初始化 ArXiv 数据源
+        # ============================================================
+
         if "arxiv" in self.enabled_sources:
             arxiv_proxy = _settings.get_proxy_dict("arxiv")
+
             self.sources["arxiv"] = ArxivSource(
                 history_dir=self.history_dir,
                 max_results=self._get_max_results("arxiv"),
                 proxy_dict=arxiv_proxy,
             )
-            logger.info("[SearchAgent] 已启用 ArXiv 数据源")
 
-        # 检查是否启用期刊（通过 OpenAlex）
-        # 期刊代码可以直接作为 enabled_sources 的一部分
+            logger.info(
+                "[SearchAgent] 已启用 ArXiv 数据源"
+            )
+
+        # ============================================================
+        # 2. 初始化 OpenAlex / Journals 数据源
+        # ============================================================
+
         journal_codes = []
-        for source in self.enabled_sources:
-            if source != "arxiv" and source in JOURNAL_ISSN_MAP:
-                journal_codes.append(source)
 
-        # 也支持通过 journals 参数指定
-        for journal in self.journals:
-            if journal not in journal_codes and journal in JOURNAL_ISSN_MAP:
-                journal_codes.append(journal)
+        # config.json 中只要启用了 "openalex" 或 "journals"
+        # 就允许通过 OpenAlex 抓取指定期刊
+        openalex_enabled = (
+            "openalex" in self.enabled_sources
+            or "journals" in self.enabled_sources
+        )
+
+        if openalex_enabled:
+            # 支持 self.journals 中填写：
+            # 1. 期刊代码，例如 "prl"、"advanced_materials"
+            # 2. 完整期刊名称，例如 "Advanced Materials"
+            for journal in self.journals:
+                # 去除期刊名称前后的空格
+                journal_name = journal.strip()
+
+                # ----------------------------------------------------
+                # 情况 1：
+                # config.json 直接填写 JOURNAL_ISSN_MAP 的期刊代码
+                # 例如：
+                # "advanced_materials"
+                # ----------------------------------------------------
+
+                if journal_name in JOURNAL_ISSN_MAP:
+                    if journal_name not in journal_codes:
+                        journal_codes.append(
+                            journal_name
+                        )
+
+                    continue
+
+                # ----------------------------------------------------
+                # 情况 2：
+                # config.json 填写完整期刊名称
+                # 例如：
+                # "Advanced Materials"
+                # ----------------------------------------------------
+
+                matched = False
+
+                for code, info in JOURNAL_ISSN_MAP.items():
+                    full_name = info.get(
+                        "full_name",
+                        ""
+                    ).strip()
+
+                    if (
+                        full_name.lower()
+                        == journal_name.lower()
+                    ):
+                        if code not in journal_codes:
+                            journal_codes.append(
+                                code
+                            )
+
+                        matched = True
+                        break
+
+                # ----------------------------------------------------
+                # 如果没有找到对应期刊，写入日志
+                # ----------------------------------------------------
+
+                if not matched:
+                    logger.warning(
+                        "[SearchAgent] "
+                        f"未在 JOURNAL_ISSN_MAP 中找到期刊: "
+                        f"{journal_name}"
+                    )
+
+        # ============================================================
+        # 3. 兼容 enabled_sources 中直接填写期刊代码
+        # ============================================================
+
+        # 例如：
+        # enabled_sources = [
+        #     "arxiv",
+        #     "prl",
+        #     "advanced_materials"
+        # ]
+
+        for source in self.enabled_sources:
+            if (
+                source in JOURNAL_ISSN_MAP
+                and source not in journal_codes
+            ):
+                journal_codes.append(
+                    source
+                )
+
+        # ============================================================
+        # 4. 如果匹配到期刊，初始化 OpenAlexSource
+        # ============================================================
 
         if journal_codes:
-            # 使用期刊中最大的单独配置值，如果都没有则用全局默认
-                        openalex_max = self._get_max_results("openalex")
-        
+            # 从 config.json 中读取：
+            #
+            # "max_results_per_source": {
+            #     "openalex": 70
+            # }
+            #
+            # 如果没有配置，则自动回退到全局 max_results
+
+            openalex_max = self._get_max_results(
+                "openalex"
+            )
+
             self.sources["openalex"] = OpenAlexSource(
                 history_dir=self.history_dir,
                 journals=journal_codes,
@@ -125,15 +227,83 @@ class SearchAgent:
                 email=self.openalex_email,
                 api_key=self.openalex_api_key,
             )
-            # 注入代理
-            openalex_proxy = _settings.get_proxy_dict("openalex")
+
+            # --------------------------------------------------------
+            # 设置 OpenAlex 网络代理
+            # --------------------------------------------------------
+
+            openalex_proxy = _settings.get_proxy_dict(
+                "openalex"
+            )
+
             if openalex_proxy:
-                self.sources["openalex"].session.proxies.update(openalex_proxy)
-                logger.info("[SearchAgent] OpenAlex 已配置网络代理")
+                self.sources[
+                    "openalex"
+                ].session.proxies.update(
+                    openalex_proxy
+                )
+
+                logger.info(
+                    "[SearchAgent] "
+                    "OpenAlex 已配置网络代理"
+                )
+
+            # 保存实际匹配成功的期刊代码
             self._journal_codes = journal_codes
-            logger.info(f"[SearchAgent] 已启用 OpenAlex 数据源，期刊: {journal_codes}")
+
+            logger.info(
+                "[SearchAgent] "
+                f"已启用 OpenAlex 数据源，"
+                f"期刊: {journal_codes}"
+            )
+
         else:
+            # 没有匹配到有效期刊
             self._journal_codes = []
+
+            if openalex_enabled:
+                logger.warning(
+                    "[SearchAgent] "
+                    "已启用 OpenAlex/Journals，"
+                    "但没有匹配到任何有效期刊，"
+                    "OpenAlex 数据源未启动"
+                )
+
+        # ============================================================
+        # 5. 给 Semantic Scholar 注入代理
+        # ============================================================
+
+        if self.semantic_scholar_enricher:
+            s2_proxy = _settings.get_proxy_dict(
+                "semantic_scholar"
+            )
+
+            if s2_proxy:
+                self.semantic_scholar_enricher.session.proxies.update(
+                    s2_proxy
+                )
+
+                logger.info(
+                    "[SearchAgent] "
+                    "Semantic Scholar 已配置网络代理"
+                )
+
+            # 保存实际启用的期刊代码
+            self._journal_codes = journal_codes
+
+            logger.info(
+                f"[SearchAgent] 已启用 OpenAlex 数据源，期刊: {journal_codes}"
+            )
+
+        else:
+            # 没有匹配到任何有效期刊
+            self._journal_codes = []
+
+            if openalex_enabled:
+                logger.warning(
+                    "[SearchAgent] 已启用 OpenAlex/Journals，"
+                    "但没有匹配到任何有效期刊，OpenAlex 数据源未启动"
+                )
 
         # 注入代理到 Semantic Scholar
         if self.semantic_scholar_enricher:
