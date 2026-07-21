@@ -283,7 +283,13 @@ class WebhookNotifier(BaseNotifier):
             sign = urllib.parse.quote_plus(base64.b64encode(hmac_code))
             url = f"{url}&timestamp={timestamp}&sign={sign}"
 
-        payload = {"msgtype": "markdown", "markdown": {"title": subject, "text": body}}
+        payload = {
+    "msgtype": "markdown",
+    "markdown": {
+        "title": f"文献日报 - {subject}",
+        "text": f"## 文献日报\n\n{body}"
+    }
+}
         return url, payload, {"Content-Type": "application/json"}
 
     def _format_telegram(self, subject: str, body: str):
