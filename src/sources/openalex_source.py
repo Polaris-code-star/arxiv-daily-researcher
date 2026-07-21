@@ -94,6 +94,105 @@ JOURNAL_ISSN_MAP = {
         "issn": ["1367-2630"],
         "display_name": "NJP",
     },
+        # ============================================================
+    # 材料、纺织、热管理与功能材料相关期刊
+    # ============================================================
+
+    "advanced_materials": {
+        "full_name": "Advanced Materials",
+        "issn": ["0935-9648", "1521-4095"],
+        "display_name": "Adv. Mater.",
+    },
+
+    "acs_applied_materials_interfaces": {
+        "full_name": "ACS Applied Materials & Interfaces",
+        "issn": ["1944-8244", "1944-8252"],
+        "display_name": "ACS Appl. Mater. Interfaces",
+    },
+
+    "journal_of_materials_chemistry_a": {
+        "full_name": "Journal of Materials Chemistry A",
+        "issn": ["2050-7488", "2050-7496"],
+        "display_name": "J. Mater. Chem. A",
+    },
+
+    "carbohydrate_polymers": {
+        "full_name": "Carbohydrate Polymers",
+        "issn": ["0144-8617", "1879-1344"],
+        "display_name": "Carbohydr. Polym.",
+    },
+
+    "advanced_functional_materials": {
+        "full_name": "Advanced Functional Materials",
+        "issn": ["1616-301X", "1616-3028"],
+        "display_name": "Adv. Funct. Mater.",
+    },
+
+    "chemical_engineering_journal": {
+        "full_name": "Chemical Engineering Journal",
+        "issn": ["1385-8947", "1873-3212"],
+        "display_name": "Chem. Eng. J.",
+    },
+
+    "composites_part_b_engineering": {
+        "full_name": "Composites Part B: Engineering",
+        "issn": ["1359-8368"],
+        "display_name": "Compos. Part B Eng.",
+    },
+
+    "acs_nano": {
+        "full_name": "ACS Nano",
+        "issn": ["1936-0851", "1936-086X"],
+        "display_name": "ACS Nano",
+    },
+
+    "advanced_materials_technologies": {
+        "full_name": "Advanced Materials Technologies",
+        "issn": ["2365-709X"],
+        "display_name": "Adv. Mater. Technol.",
+    },
+
+    "cellulose": {
+        "full_name": "Cellulose",
+        "issn": ["0969-0239", "1572-882X"],
+        "display_name": "Cellulose",
+    },
+
+    "coatings": {
+        "full_name": "Coatings",
+        "issn": ["2079-6412"],
+        "display_name": "Coatings",
+    },
+
+    "nano_micro_letters": {
+        "full_name": "Nano-Micro Letters",
+        "issn": ["2311-6706", "2150-5551"],
+        "display_name": "Nano-Micro Lett.",
+    },
+
+    "progress_in_organic_coatings": {
+        "full_name": "Progress in Organic Coatings",
+        "issn": ["0300-9440", "1873-331X"],
+        "display_name": "Prog. Org. Coat.",
+    },
+
+    "small": {
+        "full_name": "Small",
+        "issn": ["1613-6810", "1613-6829"],
+        "display_name": "Small",
+    },
+
+    "advanced_fiber_materials": {
+        "full_name": "Advanced Fiber Materials",
+        "issn": ["2524-7921", "2524-793X"],
+        "display_name": "Adv. Fiber Mater.",
+    },
+
+    "surfaces_and_interfaces": {
+        "full_name": "Surfaces and Interfaces",
+        "issn": ["2468-0230"],
+        "display_name": "Surf. Interfaces",
+    },
 }
 
 
