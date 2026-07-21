@@ -133,7 +133,179 @@ class DailyResearchPipeline:
 
     从多个数据源抓取论文，评分筛选，深度分析，生成报告，发送通知。
     """
+    def _local_prefilter(self, papers):
+        """
+        在调用 LLM 之前，先通过标题和摘要进行本地关键词预筛选。
+        本步骤不调用任何 LLM，因此不消耗 Token。
+        """
 
+        # 强相关关键词：只要出现一个就保留
+        strong_terms = [
+            # 个人热管理
+            "personal thermal management",
+            "wearable thermal management",
+            "textile thermal management",
+            "personal cooling",
+            "personal heating",
+
+            # 辐射制冷
+            "radiative cooling",
+            "passive radiative cooling",
+            "daytime radiative cooling",
+            "passive daytime radiative cooling",
+            "radiative cooler",
+            "radiative cooling film",
+            "radiative cooling membrane",
+            "radiative cooling coating",
+            "atmospheric window",
+            "solar reflectance",
+            "solar reflectivity",
+            "mid-infrared emission",
+            "mid infrared emission",
+
+            # 功能纺织
+            "smart textile",
+            "smart textiles",
+            "functional textile",
+            "functional textiles",
+            "functional fabric",
+            "functional fabrics",
+            "thermal comfort textile",
+            "thermal comfort clothing",
+
+            # 光热
+            "photothermal textile",
+            "photothermal fabric",
+            "solar heating textile",
+            "solar heating fabric",
+
+            # 纤维素 / 棉
+            "cellulose textile",
+            "cellulose fabric",
+            "cellulose film",
+            "cellulose membrane",
+            "cotton fabric",
+            "coated textile",
+        ]
+
+        # 材料或载体关键词
+        carrier_terms = [
+            "textile",
+            "textiles",
+            "fabric",
+            "fabrics",
+            "fiber",
+            "fibers",
+            "fibre",
+            "fibres",
+            "wearable",
+            "clothing",
+            "garment",
+            "cotton",
+            "cellulose",
+            "polymer film",
+            "polymeric film",
+            "polymer membrane",
+            "polymeric membrane",
+            "composite film",
+            "multilayer film",
+            "porous film",
+            "coating",
+        ]
+
+        # 功能关键词
+        function_terms = [
+            "thermal management",
+            "thermal regulation",
+            "thermoregulation",
+            "thermal comfort",
+            "radiative cooling",
+            "passive cooling",
+            "photothermal",
+            "solar heating",
+            "thermal radiation",
+            "infrared emission",
+            "infrared emissivity",
+            "solar reflectance",
+            "solar reflectivity",
+            "moisture management",
+            "heat transfer",
+        ]
+
+        # 明显与你研究方向无关的内容
+        negative_terms = [
+            "battery thermal management",
+            "lithium-ion battery thermal",
+            "lithium ion battery thermal",
+            "electric vehicle battery thermal",
+            "data center cooling",
+            "server cooling",
+            "chip cooling",
+            "electronic cooling",
+            "electronics cooling",
+            "cpu cooling",
+            "gpu cooling",
+            "microwave absorber",
+            "microwave absorption",
+            "radar absorbing",
+            "radar absorption",
+            "antenna absorber",
+            "electromagnetic absorber",
+            "electromagnetic absorption",
+        ]
+
+        filtered = []
+
+        for paper in papers:
+            title = getattr(paper, "title", "") or ""
+            abstract = getattr(paper, "abstract", "") or ""
+            summary = getattr(paper, "summary", "") or ""
+
+            text = f"{title} {abstract} {summary}".lower()
+
+            # 强相关
+            strong_match = any(
+                term in text
+                for term in strong_terms
+            )
+
+            # 材料载体 + 功能同时出现
+            carrier_match = any(
+                term in text
+                for term in carrier_terms
+            )
+
+            function_match = any(
+                term in text
+                for term in function_terms
+            )
+
+            # 明显无关
+            negative_match = any(
+                term in text
+                for term in negative_terms
+            )
+
+            # 强相关直接保留
+            if strong_match:
+                filtered.append(paper)
+                continue
+
+            # 材料载体 + 目标功能同时满足，并且不是明显无关方向
+            if (
+                carrier_match
+                and function_match
+                and not negative_match
+            ):
+                filtered.append(paper)
+
+        logger.info(
+            f"[LocalPrefilter] 本地预筛选: "
+            f"{len(papers)} -> {len(filtered)} 篇，"
+            f"减少 {len(papers) - len(filtered)} 篇 LLM 调用"
+        )
+
+        return filtered
     def run(self):
         """
         执行每日研究完整流程。
@@ -283,6 +455,31 @@ class DailyResearchPipeline:
                     continue
 
                 logger.info(f"  评分数据源 [{source}]: {len(papers)} 篇论文")
+
+                # ====================================================
+                # LLM 评分前进行本地关键词预筛选
+                # 本步骤不调用 LLM，不消耗 Token
+                # ====================================================
+                original_count = len(papers)
+
+                papers = self._local_prefilter(papers)
+
+               if not papers:
+                   logger.info(
+                       f"    [{source}] 本地预筛选: "
+                       f"{original_count} -> 0 篇，"
+                       f"无候选论文，跳过 LLM 评分"
+                   )
+
+                   scored_papers_by_source[source] = []
+
+                   continue
+
+                logger.info(
+                    f"    [{source}] 本地预筛选后剩余 "
+                    f"{len(papers)}/{original_count} 篇，开始 LLM 评分"
+                )
+
                 scored_papers = []
 
                 if settings.ENABLE_CONCURRENCY and len(papers) > 1:
