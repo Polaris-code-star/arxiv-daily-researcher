@@ -464,16 +464,16 @@ class DailyResearchPipeline:
 
                 papers = self._local_prefilter(papers)
 
-               if not papers:
-                   logger.info(
-                       f"    [{source}] 本地预筛选: "
-                       f"{original_count} -> 0 篇，"
-                       f"无候选论文，跳过 LLM 评分"
-                   )
+                if not papers:
+                    logger.info(
+                        f"    [{source}] 本地预筛选: "
+                        f"{original_count} -> 0 篇，"
+                        f"无候选论文，跳过 LLM 评分"
+                    )
 
-                   scored_papers_by_source[source] = []
+                    scored_papers_by_source[source] = []
 
-                   continue
+                    continue
 
                 logger.info(
                     f"    [{source}] 本地预筛选后剩余 "
