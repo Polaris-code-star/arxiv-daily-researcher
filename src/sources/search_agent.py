@@ -116,10 +116,8 @@ class SearchAgent:
 
         if journal_codes:
             # 使用期刊中最大的单独配置值，如果都没有则用全局默认
-            openalex_max = max(
-                (self._get_max_results(jc) for jc in journal_codes),
-                default=self.max_results,
-            )
+                        openalex_max = self._get_max_results("openalex")
+        
             self.sources["openalex"] = OpenAlexSource(
                 history_dir=self.history_dir,
                 journals=journal_codes,
